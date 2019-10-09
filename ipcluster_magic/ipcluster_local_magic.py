@@ -13,8 +13,8 @@ class IPClusterMagics(Magics):
     """engine an IPyParallel cluster.
 
 Usage:
-  %ipcluster start [options]
-  %ipcluster start [options] -m <modules>...
+  %ipcluster start -n <num_engines> [options]
+  %ipcluster start -n <num_engines> [options] -m <modules>...
   %ipcluster stop
   %ipcluster (-h | --help)
   %ipcluster --version
