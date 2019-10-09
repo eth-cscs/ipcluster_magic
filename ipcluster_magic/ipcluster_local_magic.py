@@ -14,7 +14,6 @@ class IPClusterMagics(Magics):
 
 Usage:
   %ipcluster start -n <num_engines> [options]
-  %ipcluster start -n <num_engines> [options] -m <modules>...
   %ipcluster stop
   %ipcluster (-h | --help)
   %ipcluster --version
@@ -23,9 +22,6 @@ Options:
   -h --help                Show this screen.
   -v --version             Show version.
   -n --num_engines <int>   Number of engines (default 1 per node).
-  -m --modules <str>       Modules to load (default none).
-  -e --env <str>           Conda env to load (default none).
-  -d --dir <path>          Directory to engine engines (default $HOME)
 """
     def __init__(self, shell):
         super().__init__(shell)
@@ -50,8 +46,6 @@ Options:
         defaults = {
             'start': None,
             'stop': None,
-            '--modules': None,
-            '--env': None,
         }
 
         given = {key: val for key, val in args.items() if val}
