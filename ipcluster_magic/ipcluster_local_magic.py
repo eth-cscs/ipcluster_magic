@@ -64,10 +64,12 @@ Options:
         # that the controller doesn't notice that the engines have
         # started.
         time.sleep(3)
-        self.engines = [pexpect.spawn('ipengine --log-to-file')
-                        for i in range(int(args['num_engines']))]
-        for i in self.engines:
-            print('engine pid:', i.pid)
+        # self.engines = [pexpect.spawn('ipengine --log-to-file')
+        #                 for i in range(int(args['num_engines']))]
+        self.engines = pexpect.spawn('srun -n %s ipengine --log-to-file' % args['num_engines'])
+        print('engine pid', self.engines.pid)
+        # for i in self.engines:
+        #     print('engine pid:', i.pid)
 
         time.sleep(1)
         print('ctrler pid:', self.controller.pid)
@@ -76,9 +78,11 @@ Options:
 
     def stop_engines(self):
         if self.running:
-            procs = [self.controller] + self.engines
-            for e in procs:
-                e.terminate()
+            self.controller.terminate()
+            self.engines.terminate()
+            #procs = [self.controller] + self.engines
+            #for e in procs:
+            #    e.terminate()
                 # e.sendline('\003')
                 # time.sleep(2)
                 # e.kill(signal.SIGTERM)
