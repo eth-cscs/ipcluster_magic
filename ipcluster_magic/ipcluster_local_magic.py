@@ -60,14 +60,14 @@ Options:
 
         return parsed_args
 
-    def _wait_for_cluster(self, args, waiting_time):
+    def _wait_for_cluster(self, waiting_time):
         prog_bar = IntProgress(min=0, max=waiting_time)
         display(prog_bar)
 
         c = ipp.Client()
         time.sleep(1)
         time_counter = 0
-        while not len(c.ids) == int(args['num_engines']):
+        while not len(c.ids) == int(self._args['num_engines']):
             time.sleep(1)
             time_counter += 1
             prog_bar.value += 1
@@ -82,7 +82,7 @@ Options:
 
         return 'ipcluster is ready! (%s seconds)' % time_counter
 
-    def launch_engines(self, args):
+    def launch_engines(self):
         self.controller = pexpect.spawn('ipcontroller --log-to-file')
         # some a seconds need pass a after launching the ipcontroller
         # before launching the ipengines. Otherwise it maigh happen
@@ -90,8 +90,8 @@ Options:
         # started.
         time.sleep(3)
         # self.engines = [pexpect.spawn('ipengine --log-to-file')
-        #                 for i in range(int(args['num_engines']))]
-        self.engines = pexpect.spawn('srun -n %s ipengine --log-to-file' % args['num_engines'])
+        #                 for i in range(int(self._args['num_engines']))]
+        self.engines = pexpect.spawn('srun -n %s ipengine --log-to-file' % self._args['num_engines'])
         print('engine pid', self.engines.pid)
         # for i in self.engines:
         #     print('engine pid:', i.pid)
@@ -100,7 +100,7 @@ Options:
         print('ctrler pid:', self.controller.pid)
 
         print('Waiting for cluster setup.')
-        print(self._wait_for_cluster(args, 60))
+        print(self._wait_for_cluster(waiting_time=60))
 
         self.running = True
 
@@ -121,14 +121,14 @@ Options:
 
     @line_magic
     def ipcluster(self, line):
-        args = self.parse_args(line)
+        self._args = self.parse_args(line)
 
-        if not args:
+        if not self._args:
             return
 
-        if args['start']:
-            self.launch_engines(args)
-        elif args['stop']:
+        if self._args['start']:
+            self.launch_engines()
+        elif self._args['stop']:
             self.stop_engines()
 
 
