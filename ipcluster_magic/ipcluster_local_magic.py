@@ -74,35 +74,38 @@ Options:
             if time_counter > waiting_time:
                 self.running = True
                 self.stop_engines()
-                return ('ipcluster failed to start after %s seconds.'
+                return ('IPCluster failed to start after %s seconds.'
                         'Please, start the cluster again' % len(c.ids))
 
         prog_bar.max = time_counter        
         prog_bar.close()
 
-        return 'ipcluster is ready! (%s seconds)' % time_counter
+        return 'IPCluster is ready! (%s seconds)' % time_counter
 
     def launch_engines(self):
-        self.controller = pexpect.spawn('ipcontroller --log-to-file')
-        # some a seconds need pass a after launching the ipcontroller
-        # before launching the ipengines. Otherwise it maigh happen
-        # that the controller doesn't notice that the engines have
-        # started.
-        time.sleep(3)
-        # self.engines = [pexpect.spawn('ipengine --log-to-file')
-        #                 for i in range(int(self._args['num_engines']))]
-        self.engines = pexpect.spawn('srun -n %s ipengine --log-to-file' % self._args['num_engines'])
-        print('engine pid', self.engines.pid)
-        # for i in self.engines:
-        #     print('engine pid:', i.pid)
+        if not self.running:
+            self.controller = pexpect.spawn('ipcontroller --log-to-file')
+            # some a seconds need pass a after launching the ipcontroller
+            # before launching the ipengines. Otherwise it maigh happen
+            # that the controller doesn't notice that the engines have
+            # started.
+            time.sleep(3)
+            # self.engines = [pexpect.spawn('ipengine --log-to-file')
+            #                 for i in range(int(self._args['num_engines']))]
+            self.engines = pexpect.spawn('srun -n %s ipengine --log-to-file' % self._args['num_engines'])
+            print('engine pid', self.engines.pid)
+            # for i in self.engines:
+            #     print('engine pid:', i.pid)
 
-        time.sleep(1)
-        print('ctrler pid:', self.controller.pid)
+            time.sleep(1)
+            print('ctrler pid:', self.controller.pid)
 
-        print('Waiting for cluster setup.')
-        print(self._wait_for_cluster(waiting_time=60))
+            print('Waiting for cluster setup.')
+            print(self._wait_for_cluster(waiting_time=60))
 
-        self.running = True
+            self.running = True
+        else:
+            print("IPCluster is already running.")
 
     def stop_engines(self):
         if self.running:
