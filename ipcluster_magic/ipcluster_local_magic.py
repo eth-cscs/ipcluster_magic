@@ -4,6 +4,8 @@ import pexpect
 import signal
 import time
 import ipyparallel as ipp
+from ipywidgets import IntProgress
+from IPython.display import display
 from IPython import get_ipython
 from IPython.core.magic import line_magic, magics_class, Magics
 from docopt import docopt, DocoptExit
@@ -59,19 +61,26 @@ Options:
         return parsed_args
 
     def _wait_for_cluster(self, args, waiting_time):
+        prog_bar = IntProgress(min=0, max=waiting_time)
+        display(prog_bar)
+
         c = ipp.Client()
         time.sleep(1)
         time_counter = 0
         while not len(c.ids) == int(args['num_engines']):
             time.sleep(1)
             time_counter += 1
+            prog_bar.value += 1
             if time_counter > waiting_time:
                 self.running = True
                 self.stop_engines()
                 return ('ipcluster failed to start after %s seconds.'
                         'Please, start the cluster again' % len(c.ids))
 
-        return 'ipcluster is ready. (%s seconds)' % time_counter
+        prog_bar.max = time_counter        
+        prog_bar.close()
+
+        return 'ipcluster is ready! (%s seconds)' % time_counter
 
     def launch_engines(self, args):
         self.controller = pexpect.spawn('ipcontroller --log-to-file')
