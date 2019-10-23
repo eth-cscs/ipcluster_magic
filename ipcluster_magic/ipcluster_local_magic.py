@@ -74,21 +74,29 @@ Options:
             return ('The connection request to the IPCluster has timed out. '
                     'Please, start the cluster again')
 
-        time.sleep(1)
-        time_counter = 0
-        while not len(c.ids) == int(self._args['num_engines']):
+        for t in range(waiting_time):
             time.sleep(1)
-            time_counter += 1
             prog_bar.value += 1
-            if time_counter > waiting_time:
-                self.stop_cluster()
-                return ('IPCluster failed to start after %s seconds. '
-                        'Please, start the cluster again' % len(c.ids))
+            if len(c.ids) == int(self._args['num_engines']):
+                prog_bar.max = t
+                prog_bar.bar_style = 'success'
+                prog_bar.close()
+                return 'IPCluster is ready! (%s seconds)' % t
 
-        prog_bar.max = time_counter        
+        prog_bar.bar_style = 'danger'
+        self.stop_cluster()
         prog_bar.close()
+        return ('IPCluster failed to start after %s seconds. '
+                'Please, start the cluster again' % len(c.ids))
 
-        return 'IPCluster is ready! (%s seconds)' % time_counter
+        # while not len(c.ids) == int(self._args['num_engines']):
+        #     time.sleep(1)
+        #     time_counter += 1
+        #     prog_bar.value += 1
+        #     if time_counter > waiting_time:
+        #         self.stop_cluster()
+        #         return ('IPCluster failed to start after %s seconds. '
+        #                 'Please, start the cluster again' % len(c.ids))
 
     def _launch_engines_local(self):
         if not self.running:
