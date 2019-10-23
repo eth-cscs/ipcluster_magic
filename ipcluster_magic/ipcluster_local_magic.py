@@ -5,7 +5,7 @@ import pexpect
 import signal
 import time
 import ipyparallel as ipp
-from ipywidgets import IntProgress
+from ipywidgets import IntProgress, HTML, VBox
 from IPython.display import display
 from IPython import get_ipython
 from IPython.core.magic import line_magic, magics_class, Magics
@@ -65,14 +65,20 @@ Options:
 
     def _wait_for_cluster(self, waiting_time):
         prog_bar = IntProgress(min=0, max=waiting_time)
-        display(prog_bar)
+        prog_label = HTML()
+        prog_box = VBox(children=[prog_label, prog_bar])
+        display(prog_box)
+        # display(prog_bar)
+
+        prog_label.value = 'Setting up the IPCluster'
 
         try:
             c = ipp.Client()
         except ipp.TimeoutError:
             self.stop_cluster()
-            return ('The connection request to the IPCluster has timed out. '
-                    'Please, start the cluster again')
+            prog_label.value = ('The connection request to the IPCluster has timed out. '
+                                'Please, start the cluster again')
+            return -1
 
         for t in range(waiting_time):
             time.sleep(1)
@@ -81,13 +87,15 @@ Options:
                 prog_bar.max = t
                 prog_bar.bar_style = 'success'
                 prog_bar.close()
-                return 'IPCluster is ready! (%s seconds)' % t
+                prog_label.value = 'IPCluster is ready! (%s seconds)' % t
+                return 0
 
         prog_bar.bar_style = 'danger'
         self.stop_cluster()
         prog_bar.close()
-        return ('IPCluster failed to start after %s seconds. '
-                'Please, start the cluster again' % len(c.ids))
+        prog_label.value = ('IPCluster failed to start after %s seconds. '
+                            'Please, start the cluster again' % t)
+        return -1
 
         # while not len(c.ids) == int(self._args['num_engines']):
         #     time.sleep(1)
@@ -108,16 +116,15 @@ Options:
             time.sleep(3)
             self.engines = [pexpect.spawn('ipengine --log-to-file')
                             for i in range(int(self._args['num_engines']))]
-            for i in self.engines:
-                print('engine pid:', i.pid)
+            # for i in self.engines:
+            #     print('engine pid:', i.pid)
 
             time.sleep(1)
-            print('ctrler pid:', self.controller.pid)
+            # print('ctrler pid:', self.controller.pid)
 
             self.running = True
 
-            print('Waiting for cluster setup.')
-            print(self._wait_for_cluster(waiting_time=60))
+            self._wait_for_cluster(waiting_time=60)
         else:
             print("IPCluster is already running.")
 
@@ -132,15 +139,14 @@ Options:
             hostname = socket.gethostname()
             self.engines = pexpect.spawn(
                 'srun -n %s ipengine --location=%s --log-to-file' % (self._args['num_engines'], hostname))
-            print('engine pid', self.engines.pid)
+            # print('engine pid', self.engines.pid)
 
             time.sleep(1)
-            print('ctrler pid:', self.controller.pid)
+            # print('ctrler pid:', self.controller.pid)
 
             self.running = True
 
-            print('Waiting for cluster setup.')
-            print(self._wait_for_cluster(waiting_time=60))
+            self._wait_for_cluster(waiting_time=60)
         else:
             print("IPCluster is already running.")
 
