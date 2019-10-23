@@ -151,8 +151,10 @@ Options:
                 procs = [self.controller] + self.engines
                 for e in procs:
                     e.terminate()
+                    time.sleep(.5)
             except TypeError:
                 self.controller.terminate()
+                time.sleep(.5)
                 self.engines.terminate()
 
             self.running = False
