@@ -66,7 +66,13 @@ Options:
         prog_bar = IntProgress(min=0, max=waiting_time)
         display(prog_bar)
 
-        c = ipp.Client()
+        try:
+            c = ipp.Client()
+        except ipp.TimeoutError:
+            self.stop_engines()
+            return ('The connection request to the IPCluster has timed out. '
+                    'Please, start the cluster again')
+
         time.sleep(1)
         time_counter = 0
         while not len(c.ids) == int(self._args['num_engines']):
@@ -74,9 +80,8 @@ Options:
             time_counter += 1
             prog_bar.value += 1
             if time_counter > waiting_time:
-                self.running = True
                 self.stop_engines()
-                return ('IPCluster failed to start after %s seconds.'
+                return ('IPCluster failed to start after %s seconds. '
                         'Please, start the cluster again' % len(c.ids))
 
         prog_bar.max = time_counter        
@@ -100,10 +105,10 @@ Options:
             time.sleep(1)
             print('ctrler pid:', self.controller.pid)
 
+            self.running = True
+
             print('Waiting for cluster setup.')
             print(self._wait_for_cluster(waiting_time=60))
-
-            self.running = True
         else:
             print("IPCluster is already running.")
 
@@ -121,10 +126,10 @@ Options:
             time.sleep(1)
             print('ctrler pid:', self.controller.pid)
 
+            self.running = True
+
             print('Waiting for cluster setup.')
             print(self._wait_for_cluster(waiting_time=60))
-
-            self.running = True
         else:
             print("IPCluster is already running.")
 
