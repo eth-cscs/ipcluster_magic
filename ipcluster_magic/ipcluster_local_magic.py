@@ -70,7 +70,7 @@ Options:
         try:
             c = ipp.Client()
         except ipp.TimeoutError:
-            self.stop_engines()
+            self.stop_cluster()
             return ('The connection request to the IPCluster has timed out. '
                     'Please, start the cluster again')
 
@@ -81,7 +81,7 @@ Options:
             time_counter += 1
             prog_bar.value += 1
             if time_counter > waiting_time:
-                self.stop_engines()
+                self.stop_cluster()
                 return ('IPCluster failed to start after %s seconds. '
                         'Please, start the cluster again' % len(c.ids))
 
@@ -142,10 +142,10 @@ Options:
         else:
             self._launch_engines_local()
 
-    def stop_engines(self):
+    def stop_cluster(self):
         if self.running:
-            # `self.args['mpi']` is not valid for `ipcluster stop`
-            # if `[self.controller] + self.engines` can not be added
+            # `self.args['mpi']` is not valid for `ipcluster stop`.
+            # If `[self.controller] + self.engines` can not be added
             # it means that the `--mpi` option was used.
             try:
                 procs = [self.controller] + self.engines
@@ -169,7 +169,7 @@ Options:
         if self._args['start']:
             self.launch_engines()
         elif self._args['stop']:
-            self.stop_engines()
+            self.stop_cluster()
 
 
 ip = get_ipython()
