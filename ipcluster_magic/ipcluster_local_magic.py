@@ -1,4 +1,5 @@
 import subprocess
+import socket
 import os
 import pexpect
 import signal
@@ -114,13 +115,15 @@ Options:
 
     def _launch_engines_mpi(self):
         if not self.running:
-            self.controller = pexpect.spawn('ipcontroller --log-to-file')
+            self.controller = pexpect.spawn('ipcontroller --ip="*" --log-to-file')
             # some a seconds need pass a after launching the ipcontroller
             # before launching the ipengines. Otherwise it maigh happen
             # that the controller doesn't notice that the engines have
             # started.
             time.sleep(3)
-            self.engines = pexpect.spawn('srun -n %s ipengine --log-to-file' % self._args['num_engines'])
+            hostname = socket.gethostname()
+            self.engines = pexpect.spawn(
+                'srun -n %s ipengine --location=%s --log-to-file' % (self._args['num_engines'], hostname))
             print('engine pid', self.engines.pid)
 
             time.sleep(1)
