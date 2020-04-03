@@ -89,45 +89,42 @@ Options:
         return -1
 
     def _launch_engines_local(self):
-        if not self.running:
-            self.controller = pexpect.spawn('ipcontroller --log-to-file')
-            # some a seconds to need pass a after launching the ipcontroller
-            # before launching the ipengines. Otherwise it maigh happen
-            # that the controller doesn't notice that the engines have
-            # started.
-            time.sleep(3)
-            self.engines = [pexpect.spawn('ipengine --log-to-file')
-                            for i in range(int(self._args['num_engines']))]
-            time.sleep(1)
-            self.running = True
-            self._wait_for_cluster(waiting_time=60)
-        else:
-            print("IPCluster is already running.")
+        self.controller = pexpect.spawn('ipcontroller --log-to-file')
+        # some a seconds to need pass a after launching the ipcontroller
+        # before launching the ipengines. Otherwise it maigh happen
+        # that the controller doesn't notice that the engines have
+        # started.
+        time.sleep(3)
+        self.engines = [pexpect.spawn('ipengine --log-to-file')
+                        for i in range(int(self._args['num_engines']))]
+        time.sleep(1)
+        self.running = True
+        self._wait_for_cluster(waiting_time=60)
 
     def _launch_engines_mpi(self):
-        if not self.running:
-            self.controller = pexpect.spawn('ipcontroller --ip="*" '
+        self.controller = pexpect.spawn('ipcontroller --ip="*" '
                                             '--log-to-file')
-            # some a seconds need pass a after launching the ipcontroller
-            # before launching the ipengines. Otherwise it maigh happen
-            # that the controller doesn't notice that the engines have
-            # started.
-            time.sleep(3)
-            hostname = socket.gethostname()
-            self.engines = pexpect.spawn(
-                'srun -n %s ipengine --location=%s '
-                '--log-to-file' % (self._args['num_engines'], hostname))
-            time.sleep(1)
-            self.running = True
-            self._wait_for_cluster(waiting_time=60)
-        else:
-            print("IPCluster is already running.")
+        # some a seconds need pass a after launching the ipcontroller
+        # before launching the ipengines. Otherwise it maigh happen
+        # that the controller doesn't notice that the engines have
+        # started.
+        time.sleep(3)
+        hostname = socket.gethostname()
+        self.engines = pexpect.spawn(
+            'srun -n %s ipengine --location=%s '
+            '--log-to-file' % (self._args['num_engines'], hostname))
+        time.sleep(1)
+        self.running = True
+        self._wait_for_cluster(waiting_time=60)
 
     def launch_engines(self):
-        if self._args['mpi']:
-            self._launch_engines_mpi()
+        if not self.running:
+            if self._args['mpi']:
+                self._launch_engines_mpi()
+            else:
+                self._launch_engines_local()
         else:
-            self._launch_engines_local()
+            print("IPCluster is already running.")
 
     def stop_cluster(self):
         if self.running:
