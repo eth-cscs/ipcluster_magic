@@ -17,10 +17,10 @@ class IPCMagicCheck(rfm.RunOnlyRegressionTest):
         self.descr = 'Distributed training with TensorFlow using ipyparallel'
         self.valid_systems = ['daint:gpu', 'dom:gpu']
         self.valid_prog_environs = ['PrgEnv-gnu']
-        self.pre_run = ['module use /apps/daint/UES/6.0.UP04/sandboxes/sarafael/modules/all',
-                        'module load jupyterlab/1.1.1-CrayGNU-19.10-batchspawner',
-                        'module unload dask',
-                        'module load Horovod/0.16.4-CrayGNU-19.10-tf-1.14.0']
+        self.pre_run = [
+            'jupyterlab/1.2.4-CrayGNU-19.10-cuda-10.1-batchspawner',
+            'module unload dask',
+            'module load Horovod/0.16.4-CrayGNU-19.10-tf-1.14.0']
         # self.post_run = ['sleep 5',
         #                  'srun ps -u $USER | grep ip']
         self.num_tasks = 2
@@ -31,10 +31,8 @@ class IPCMagicCheck(rfm.RunOnlyRegressionTest):
                              self.stdout, 'nid', str)
         # engines = sn.extractall(r'[\S\s]+ (?P<engine>ipengine)\s*',
         #                         self.stdout, 'engine', str)
-        self.sanity_patterns = sn.all([
-            sn.assert_ne(nids[0], nids[1]),
-        #    sn.assert_eq(sn.count(engines), 2)
-        ])
+        self.sanity_patterns = sn.all([sn.assert_ne(nids[0], nids[1])])
+        #    sn.assert_eq(sn.count(engines), 2)])
         self.reference = {
             'daint:gpu': {
                 'slope': (2.0, -0.1, 0.1, ''),
@@ -47,7 +45,7 @@ class IPCMagicCheck(rfm.RunOnlyRegressionTest):
         }
         self.perf_patterns = {
             'slope': sn.extractsingle(r'slope=(?P<slope>\S+)',
-                                   self.stdout, 'slope', float),
+                                      self.stdout, 'slope', float),
             'offset': sn.extractsingle(r'offset=(?P<offset>\S+)',
                                        self.stdout, 'offset', float)
         }
