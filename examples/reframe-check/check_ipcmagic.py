@@ -18,21 +18,19 @@ class IPCMagicCheck(rfm.RunOnlyRegressionTest):
         self.valid_systems = ['daint:gpu', 'dom:gpu']
         self.valid_prog_environs = ['PrgEnv-gnu']
         self.pre_run = [
-            'jupyterlab/1.2.4-CrayGNU-19.10-cuda-10.1-batchspawner',
+            'module load jupyterlab',
             'module unload dask',
             'module load Horovod/0.16.4-CrayGNU-19.10-tf-1.14.0']
-        # self.post_run = ['sleep 5',
-        #                  'srun ps -u $USER | grep ip']
         self.num_tasks = 2
         self.num_tasks_per_node = 1
         self.executable = 'ipython'
         self.executable_opts = ['tf-hvd-sgd-ipc-tf-1.14.py']
         nids = sn.extractall(r'nid(?P<nid>\d+)',
                              self.stdout, 'nid', str)
-        # engines = sn.extractall(r'[\S\s]+ (?P<engine>ipengine)\s*',
-        #                         self.stdout, 'engine', str)
-        self.sanity_patterns = sn.all([sn.assert_ne(nids[0], nids[1])])
-        #    sn.assert_eq(sn.count(engines), 2)])
+        self.sanity_patterns = sn.all([
+            sn.assert_ne(nids, []),
+            sn.assert_ne(nids[0], nids[1])
+        ])
         self.reference = {
             'daint:gpu': {
                 'slope': (2.0, -0.1, 0.1, ''),
@@ -49,7 +47,7 @@ class IPCMagicCheck(rfm.RunOnlyRegressionTest):
             'offset': sn.extractsingle(r'offset=(?P<offset>\S+)',
                                        self.stdout, 'offset', float)
         }
-        self.maintainers = ['TM', 'TR']
+        self.maintainers = ['RS', 'TR']
         self.tags = {'production'}
 
     @rfm.run_before('run')

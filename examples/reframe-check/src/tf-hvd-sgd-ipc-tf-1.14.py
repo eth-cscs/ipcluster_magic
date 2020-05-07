@@ -1,4 +1,4 @@
-import ipcmagic.local
+import ipcmagic
 import ipyparallel as ipp
 
 
@@ -7,7 +7,7 @@ get_ipython().run_line_magic('ipcluster', '--version')
 
 get_ipython().run_line_magic('ipcluster', 'start -n 2 --mpi')
 
-c = ipp.Client()   # (profile='job_17669451')
+c = ipp.Client()
 
 print('cluster ids:', c.ids)
 
