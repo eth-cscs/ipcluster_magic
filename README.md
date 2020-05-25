@@ -1,5 +1,6 @@
 # IPyCluster Magics for JupyterLab at CSCS
 
-### Requirements
+## Requirements
+ * pyexpect
  * IPyParallel
  * docopt
