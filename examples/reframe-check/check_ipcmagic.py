@@ -11,7 +11,6 @@ class IPCMagicCheck(rfm.RunOnlyRegressionTest):
         self.valid_prog_environs = ['PrgEnv-gnu']
         self.modules = ['ipcmagic/0.1-CrayGNU-19.10']
         self.pre_run = [
-            # 'module load ipcmagic/0.1-CrayGNU-19.10',
             'module unload dask',
             'module load Horovod/0.16.4-CrayGNU-19.10-tf-1.14.0']
         self.num_tasks = 2
@@ -29,11 +28,13 @@ class IPCMagicCheck(rfm.RunOnlyRegressionTest):
                 'slope': (2.0, -0.1, 0.1, ''),
                 'offset': (0.0, -0.1, 0.1, ''),
                 'retries': (4, None, None, ''),
+                'time': (10, None, None, 's'),
             },
             'dom:gpu': {
                 'slope': (2.0, -0.1, 0.1, ''),
                 'offset': (0.0, -0.1, 0.1, ''),
                 'retries': (4, None, None, ''),
+                'time': (10, None, None, 'seconds'),
             }
         }
         self.perf_patterns = {
@@ -41,15 +42,18 @@ class IPCMagicCheck(rfm.RunOnlyRegressionTest):
                                       self.stdout, 'slope', float),
             'offset': sn.extractsingle(r'offset=(?P<offset>\S+)',
                                        self.stdout, 'offset', float),
-            'retries': self.retries()
+            'retries': self.retries(),
+            'time': sn.extractsingle(r'IPCluster is ready\!\s+'
+                                     r'\((?P<time>\d+) seconds\)',
+                                     self.stdout, 'time', float)
         }
         self.maintainers = ['RS', 'TR']
         self.tags = {'production'}
 
     @rfm.run_before('run')
     def prepare_run(self):
-        # Changing the job launcher since the `ipython`
-        # need to be emitited without `srun`.
+        # Changing the job launcher since `ipython`
+        # needs to be emitted without `srun`.
         self.job.launcher = getlauncher('local')()
 
     @sn.sanity_function
