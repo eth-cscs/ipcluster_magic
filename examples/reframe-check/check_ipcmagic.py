@@ -27,13 +27,13 @@ class IPCMagicCheck(rfm.RunOnlyRegressionTest):
             'daint:gpu': {
                 'slope': (2.0, -0.1, 0.1, ''),
                 'offset': (0.0, -0.1, 0.1, ''),
-                'retries': (4, None, None, ''),
+                'retries': (0, None, None, ''),
                 'time': (10, None, None, 's'),
             },
             'dom:gpu': {
                 'slope': (2.0, -0.1, 0.1, ''),
                 'offset': (0.0, -0.1, 0.1, ''),
-                'retries': (4, None, None, ''),
+                'retries': (0, None, None, ''),
                 'time': (10, None, None, 'seconds'),
             }
         }
@@ -52,7 +52,7 @@ class IPCMagicCheck(rfm.RunOnlyRegressionTest):
 
     @rfm.run_before('run')
     def prepare_run(self):
-        # Changing the job launcher since `ipython`
+        # Change the job launcher since `ipython`
         # needs to be emitted without `srun`.
         self.job.launcher = getlauncher('local')()
 

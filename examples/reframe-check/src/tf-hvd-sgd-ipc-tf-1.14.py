@@ -6,9 +6,10 @@ get_ipython().run_line_magic('ipcluster', '--version')
 
 
 get_ipython().run_line_magic('ipcluster', 'start -n 2 --mpi')
-# Repeat a couple of times in case it initially gets a `TimeoutError`
-# If The cluster starts since the begining,
-# it won't try again and it will print `IPCluster is already running`.
+# Repeat a few of times in case of `TimeoutError`.
+# After the cluser starts, the following calls won't do nothing
+# but printing "IPCluster is already running".
+# This mimics what the user would do in such case.
 get_ipython().run_line_magic('ipcluster', 'start -n 2 --mpi')
 get_ipython().run_line_magic('ipcluster', 'start -n 2 --mpi')
 get_ipython().run_line_magic('ipcluster', 'start -n 2 --mpi')
