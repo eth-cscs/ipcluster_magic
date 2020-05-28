@@ -28,7 +28,7 @@ class IPCMagicCheck(rfm.RunOnlyRegressionTest):
                 'slope': (2.0, -0.1, 0.1, ''),
                 'offset': (0.0, -0.1, 0.1, ''),
                 'retries': (0, None, None, ''),
-                'time': (10, None, None, 's'),
+                'time': (10, None, None, 'seconds'),
             },
             'dom:gpu': {
                 'slope': (2.0, -0.1, 0.1, ''),
