@@ -73,14 +73,15 @@ Options:
         for t in range(waiting_time):
             polling_rate = 0.4
             time.sleep(polling_rate)
+            total_sec = t * polling_rate
             print('Setting up the IPCluster '
                   f'{animation[idx % len(animation)]}', end='\r')
             idx += 1
             if len(c.ids) == int(self._args['num_engines']):
-                print(f'IPCluster is ready! ({t * polling_rate} seconds)')
+                print(f'IPCluster is ready! ({total_sec:.0f} seconds)')
                 return 0
 
-        print(f'IPCluster failed to start after {t * polling_rate} seconds. '
+        print(f'IPCluster failed to start after {total_sec:.0f} seconds. '
               'Please, start the cluster again')
 
         # make sure that no rogue ipc processes are left running
