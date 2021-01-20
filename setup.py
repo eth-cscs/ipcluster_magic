@@ -11,6 +11,6 @@ setup(name='ipcluster_magics',
       install_requires=[
           'ipython>=6.3.0',
           'pexpect>=4.8.0',
-          'docoptr>==0.6.2'
+          'docopt>==0.6.2'
       ]
 )
