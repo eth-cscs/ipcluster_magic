@@ -22,7 +22,7 @@ Options:
   -h --help                Show this screen.
   -v --version             Show version.
   -n --num_engines <int>   Number of engines 
-  -m --mpi                 Run with mpi support (engines are distributed across nodes)
+  -m --mpi                 Run with MPI support (engines are distributed across nodes)
 """
     def __init__(self, shell):
         super().__init__(shell)
