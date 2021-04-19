@@ -10,7 +10,7 @@ from IPython.core.magic import line_magic, magics_class, Magics
 
 @magics_class
 class IPClusterMagics(Magics):
-    """engine an IPyParallel cluster.
+    """Manage an IPyParallel cluster.
 
 Usage:
   %ipcluster start -n <num_engines> [options]
@@ -21,8 +21,8 @@ Usage:
 Options:
   -h --help                Show this screen.
   -v --version             Show version.
-  -n --num_engines <int>   Number of engines (default 1 per node).
-  -m --mpi                 Run with mpi support
+  -n --num_engines <int>   Number of engines 
+  -m --mpi                 Run with mpi support (engines are distributed across nodes)
 """
     def __init__(self, shell):
         super().__init__(shell)
