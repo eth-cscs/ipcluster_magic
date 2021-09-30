@@ -44,3 +44,17 @@ def watch_asyncresult(ar, dt=1, truncate=1000):
 
     if 'error' in ar.status or None in ar.status:
         ar.display_outputs()
+
+
+class Arguments:
+    """Utility class to treat the magic class docopt args
+    as class attribute instead of dictionary keys.
+    self.args['option'] -> self.args.option
+    """
+    def __init__(self, attr_dict):
+        if type(attr_dict) is dict:
+            # replace `-` characters inside the string
+            # like `num-engines` for instance
+            attr_dict = {key.replace('-', '_'): val
+                         for key, val in attr_dict.items()}
+            self.__dict__.update(attr_dict)
