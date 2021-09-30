@@ -1,8 +1,15 @@
+import os
 from setuptools import setup
 
 
+version_py = os.path.join(os.path.dirname(__file__), 'ipcmagic', 'version.py')
+version = {}
+with open(version_py) as fp:
+    exec(fp.read(), version)
+
+
 setup(name='ipcluster_magics',
-      version='1.0.1',
+      version=version['VERSION'],
       packages=['ipcmagic'],
       url='https://github.com/eth-cscs/ipcluster_magic',
       license='BSD',

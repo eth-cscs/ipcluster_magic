@@ -1,4 +1,3 @@
-import ipcmagic
 import ipyparallel as ipp
 import os
 import pexpect
@@ -6,6 +5,7 @@ import socket
 import time
 from docopt import docopt, DocoptExit
 from ipcmagic.utilities import Arguments
+from ipcmagic.version import VERSION
 from IPython.core.magic import line_magic, magics_class, Magics
 
 
@@ -28,7 +28,7 @@ class IPClusterMagics(Magics):
     """
     def __init__(self, shell):
         super().__init__(shell)
-        self.__version__ = ipcmagic.__version__
+        self.__version__ = VERSION
         self.running = False
 
     def parse_args(self, line):
