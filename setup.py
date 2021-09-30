@@ -1,8 +1,8 @@
-from distutils.core import setup
+from setuptools import setup
 
 
 setup(name='ipcluster_magics',
-      version='1.0.0',
+      version='1.0.1',
       packages=['ipcmagic'],
       url='https://github.com/eth-cscs/ipcluster_magic',
       license='BSD',
@@ -11,6 +11,7 @@ setup(name='ipcluster_magics',
       install_requires=[
           'ipython>=6.3.0',
           'pexpect>=4.8.0',
-          'docopt>==0.6.2'
+          'docopt>=0.6.2',
+          'ipyparallel>=7.0.1',
       ]
 )
