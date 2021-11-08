@@ -62,9 +62,9 @@ class IPClusterMagics(Magics):
 
         return parsed_args
 
-    def _wait_for_cluster(self, waiting_time):
+    def _wait_for_cluster(self, waiting_time=60):
         try:
-            c = ipp.Client(timeout=10)
+            c = ipp.Client(timeout=waiting_time)
         except ipp.TimeoutError:
             self.stop_cluster()
             print('The connection request to the cluster controller '
@@ -75,7 +75,7 @@ class IPClusterMagics(Magics):
         # for the engines to be ready
         try:
             c.wait_for_engines(int(self.args.num_engines),
-                               timeout=60)
+                               timeout=waiting_time)
         except ipp.TimeoutError:
             self.stop_cluster()
             print('IPCMagic has failed to launch the engines. '
