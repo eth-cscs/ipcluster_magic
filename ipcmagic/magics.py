@@ -1,10 +1,9 @@
 import ipyparallel as ipp
 import os
-import pexpect
 import socket
 import time
 from docopt import docopt, DocoptExit
-from ipcmagic.utilities import Arguments
+from ipcmagic.utilities import Arguments, run_command_async
 from ipcmagic.version import VERSION
 from IPython.core.magic import line_magic, magics_class, Magics
 
@@ -94,21 +93,21 @@ class IPClusterMagics(Magics):
             return
 
     def _launch_engines_local(self):
-        self.controller = pexpect.spawn('ipcontroller --log-to-file')
+        self.controller = run_command_async('ipcontroller --log-to-file')
         # some seconds need to pass between launching the ipcontroller
         # and launching the ipengines. Otherwise it might happen
         # that the controller doesn't notice that the engines have
         # started.
         time.sleep(3)
-        self.engines = [pexpect.spawn('ipengine --log-to-file')
+        self.engines = [run_command_async('ipengine --log-to-file')
                         for i in range(int(self.args.num_engines))]
         time.sleep(1)
         self.running = True
         self._wait_for_cluster(waiting_time=60)
 
     def _launch_engines_mpi(self):
-        self.controller = pexpect.spawn('ipcontroller --ip="*" '
-                                        '--log-to-file')
+        self.controller = run_command_async('ipcontroller --ip="*" '
+                                            '--log-to-file')
         # some seconds need to pass between launching the ipcontroller
         # and launching the ipengines. Otherwise it might happen
         # that the controller doesn't notice that the engines have
@@ -116,7 +115,7 @@ class IPClusterMagics(Magics):
         time.sleep(3)
         hostname = socket.gethostname()
         np_opt = self.launcher_np_opts[self.args.launcher]
-        self.engines = pexpect.spawn(
+        self.engines = run_command_async(
             f'{self.args.launcher} {np_opt} {self.args.num_engines} ipengine '
             f'--location={hostname} --log-to-file')
         time.sleep(1)

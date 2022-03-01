@@ -1,6 +1,26 @@
+import shlex
+import subprocess
 import sys
 import time
 from IPython.display import clear_output
+
+
+def run_command_async(cmd,
+                      stdout=subprocess.PIPE,
+                      stderr=subprocess.PIPE,
+                      shell=False,
+                      log=True,
+                      **popen_args):
+
+    if isinstance(cmd, str) and not shell:
+        cmd = shlex.split(cmd)
+
+    return subprocess.Popen(args=cmd,
+                            stdout=stdout,
+                            stderr=stderr,
+                            universal_newlines=True,
+                            shell=shell,
+                            **popen_args)
 
 
 def watch_asyncresult(ar, dt=1, truncate=1000):
@@ -22,6 +42,7 @@ def watch_asyncresult(ar, dt=1, truncate=1000):
             673/1500 [============>.................] - ETA: 6s - loss: 0.0940
     ```
     """
+
     while not ar.ready():
         stdouts = ar.stdout
         if not any(stdouts):
@@ -51,6 +72,7 @@ class Arguments:
     as class attribute instead of dictionary keys.
     self.args['option'] -> self.args.option
     """
+
     def __init__(self, attr_dict):
         if type(attr_dict) is dict:
             # replace `-` characters inside the string
