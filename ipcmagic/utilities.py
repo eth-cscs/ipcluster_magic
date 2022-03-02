@@ -11,6 +11,9 @@ def run_command_async(cmd,
                       shell=False,
                       log=True,
                       **popen_args):
+    """Taken from ReFrame
+    https://github.com/eth-cscs/reframe/blob/2805e18b608d274cde2e1254752cbd868f76340b/reframe/utility/osext.py#L74-L114  # noqa
+    """
 
     if isinstance(cmd, str) and not shell:
         cmd = shlex.split(cmd)

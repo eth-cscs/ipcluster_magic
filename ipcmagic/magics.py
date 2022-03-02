@@ -56,12 +56,12 @@ class IPClusterMagics(Magics):
             'launcher': 'srun'
         }
 
-        given = {key: val for key, val in args.items() if val}
-        combined = {**defaults, **given}
+        given_args = {key: val for key, val in args.items() if val}
+        all_args = {**defaults, **given_args}
 
         # Remove '--' from args
         parsed_args = {key.replace('--', ''): val
-                       for key, val in combined.items()}
+                       for key, val in all_args.items()}
 
         valid_launchers = ['mpirun', 'srun', 'local']
         if parsed_args['launcher'] not in valid_launchers:
@@ -115,9 +115,14 @@ class IPClusterMagics(Magics):
         time.sleep(3)
         hostname = socket.gethostname()
         np_opt = self.launcher_np_opts[self.args.launcher]
-        self.engines = run_command_async(
-            f'{self.args.launcher} {np_opt} {self.args.num_engines} ipengine '
-            f'--location={hostname} --log-to-file')
+        try:
+            self.engines = run_command_async(
+                f'{self.args.launcher} {np_opt} {self.args.num_engines} ipengine '  # noqa
+                f'--location={hostname} --log-to-file')
+        except FileNotFoundError:
+            print(f'Non-supported launcher: {self.args.launcher}')
+            return
+
         time.sleep(1)
         self.running = True
         self._wait_for_cluster(waiting_time=60)
@@ -133,20 +138,32 @@ class IPClusterMagics(Magics):
 
     def stop_cluster(self):
         if self.running:
-            # `self.args.launcher=local` is not valid for `ipcluster stop`.
-            # If `[self.controller] + self.engines` can not be added
+            # If `[self.controller] + self.engines` can be added
             # it means that the local launcher was used.
             try:
                 procs = [self.controller] + self.engines
-                for e in procs:
-                    e.terminate()
-                    time.sleep(.5)
+                returncodes = []
+                for p in procs:
+                    p.terminate()
+                    p.terminate()  # `terminate()` needs to run twice
+                    time.sleep(1)
+                    returncodes.append(p.returncode)
+
             except TypeError:
                 self.controller.terminate()
-                time.sleep(.5)
+                self.controller.terminate()  # `terminate()` needs to run twice
+                time.sleep(1)
                 self.engines.terminate()
+                returncodes = [self.controller.returncode,
+                               self.engines.returncode]
 
-            self.running = False
+            if None not in returncodes:
+                print('Some processes are still running. '
+                      'Please, try again or restart the kernel.')
+            else:
+                print('IPCluster stopped.')
+                self.running = False
+
         else:
             print("IPCluster not running.")
 
