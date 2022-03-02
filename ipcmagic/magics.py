@@ -120,7 +120,8 @@ class IPClusterMagics(Magics):
                 f'{self.args.launcher} {np_opt} {self.args.num_engines} ipengine '  # noqa
                 f'--location={hostname} --log-to-file')
         except FileNotFoundError:
-            print(f'Non-supported launcher: {self.args.launcher}')
+            print(f'Launcher not supported in this system: '
+                  f'{self.args.launcher}')
             return
 
         time.sleep(1)
@@ -169,6 +170,7 @@ class IPClusterMagics(Magics):
             del ip.magics_manager.magics['cell']['px']
             del ip.magics_manager.magics['line']['px']
             del ip.magics_manager.magics['line']['autopx']
+            del ip.magics_manager.magics['line']['pxconfig']
 
             print('IPCluster stopped.')
         else:
