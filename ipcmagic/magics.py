@@ -74,7 +74,7 @@ class IPClusterMagics(Magics):
 
     def _wait_for_cluster(self, waiting_time=60):
         try:
-            c = ipp.Client(timeout=waiting_time)
+            self.client = ipp.Client(timeout=waiting_time)
         except ipp.TimeoutError:
             self.stop_cluster()
             print('The connection request to the cluster controller '
@@ -84,8 +84,8 @@ class IPClusterMagics(Magics):
         # at this point the ipcontroller is running and we wait
         # for the engines to be ready
         try:
-            c.wait_for_engines(int(self.args.num_engines),
-                               timeout=waiting_time)
+            self.client.wait_for_engines(int(self.args.num_engines),
+                                         timeout=waiting_time)
         except ipp.TimeoutError:
             self.stop_cluster()
             print('IPCMagic has failed to launch the engines. '
@@ -136,34 +136,41 @@ class IPClusterMagics(Magics):
         else:
             print("IPCluster is already running.")
 
-    def stop_cluster(self):
-        if self.running:
+    def _wait_for_cluster_shutdown(self, waiting_time=5):
+        for i in range(waiting_time):
             # If `[self.controller] + self.engines` can be added
             # it means that the local launcher was used.
             try:
                 procs = [self.controller] + self.engines
                 returncodes = []
-                for p in procs:
-                    p.terminate()
-                    p.terminate()  # `terminate()` needs to run twice
-                    time.sleep(1)
-                    returncodes.append(p.returncode)
+                # for p in procs:
+                #     returncodes.append(p.poll())
+                returncodes = [p.pol() for p in procs]
 
             except TypeError:
-                self.controller.terminate()
-                self.controller.terminate()  # `terminate()` needs to run twice
-                time.sleep(1)
-                self.engines.terminate()
-                returncodes = [self.controller.returncode,
-                               self.engines.returncode]
+                returncodes = [self.controller.poll(), self.engines.poll()]
 
             if None not in returncodes:
-                print('Some processes are still running. '
-                      'Please, try again or restart the kernel.')
-            else:
-                print('IPCluster stopped.')
-                self.running = False
+                return
 
+            time.sleep(1)
+
+        print('Some processes seem to have failed during shutdown. '
+              'The kernel might have to be restarted.')
+
+    def stop_cluster(self):
+        if self.running:
+            self.client.shutdown(targets='all', hub=True)
+            self._wait_for_cluster_shutdown(waiting_time=5)
+            self.running = False
+
+            # disable the px and autopx magics
+            ip = get_ipython()
+            del ip.magics_manager.magics['cell']['px']
+            del ip.magics_manager.magics['line']['px']
+            del ip.magics_manager.magics['line']['autopx']
+
+            print('IPCluster stopped.')
         else:
             print("IPCluster not running.")
 
