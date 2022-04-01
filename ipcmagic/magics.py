@@ -141,7 +141,7 @@ class IPClusterMagics(Magics):
             try:
                 procs = [self.controller] + self.engines
                 returncodes = []
-                returncodes = [p.pol() for p in procs]
+                returncodes = [p.poll() for p in procs]
             except TypeError:
                 returncodes = [self.controller.poll(), self.engines.poll()]
 
