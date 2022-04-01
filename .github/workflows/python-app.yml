@@ -52,4 +52,4 @@ jobs:
         pip install nbformat
     - name: Run a non-MPI cluster example
       run: |
-        ipython examples/no_mpi_cluster.ipynb
+        ipython examples/non-mpi_cluster.ipynb
