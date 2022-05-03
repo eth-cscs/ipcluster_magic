@@ -20,8 +20,7 @@ setup(name='ipcmagic-cscs',
       long_description_content_type='text/markdown',
       install_requires=[
           'ipython>=6.3.0',
-          'pexpect>=4.8.0',
           'docopt>=0.6.2',
-          'ipyparallel>=7.0.1',
+          'ipyparallel>=8.2.0',
       ]
 )
