@@ -21,6 +21,6 @@ setup(name='ipcmagic-cscs',
       install_requires=[
           'ipython>=6.3.0',
           'docopt>=0.6.2',
-          'ipyparallel>=8.2.0',
+          'ipyparallel>=8.2.1',
       ]
 )

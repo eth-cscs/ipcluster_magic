@@ -126,11 +126,21 @@ class IPClusterMagics(Magics):
         except FileNotFoundError:
             print(f'Launcher not supported in this system: '
                   f'{self.args.launcher}')
-            return
+            return 1
 
         time.sleep(1)
         self.running = True
         self._wait_for_cluster_start(timeout=60)
+
+        if self.args.dask:
+            try:
+                self.dask_client = dask_cluster.activate(
+                    self.client, self.args
+                )
+            except ModuleNotFoundError as err:
+                print(f'The dask cluster failed to start: {err}')
+                self.stop_cluster()
+                return
 
     def launch_engines(self):
         if not self.running:
@@ -138,10 +148,6 @@ class IPClusterMagics(Magics):
                 self._launch_engines_local()
             else:
                 self._launch_engines_mpi()
-                if self.args.dask:
-                    self.dask_client = dask_cluster.activate(
-                        self.client, self.args
-                    )
 
         else:
             print("IPCluster is already running.")
