@@ -126,7 +126,7 @@ class IPClusterMagics(Magics):
         except FileNotFoundError:
             print(f'Launcher not supported in this system: '
                   f'{self.args.launcher}')
-            return 1
+            return
 
         time.sleep(1)
         self.running = True
