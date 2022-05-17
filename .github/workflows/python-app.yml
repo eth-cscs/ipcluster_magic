@@ -69,8 +69,8 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y openmpi-bin
         python -m pip install --upgrade pip
-        pip install .
-        pip install nbformat dask[complete]
+        pip install .[dask]
+        pip install nbformat
     - name: Run a dask cluster example
       run: |
         ipython examples/ipp_dask_distribute.ipynb
