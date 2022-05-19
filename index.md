@@ -1,7 +1,5 @@
 # IPyCluster Magics
 
-Magic commands to support running MPI python code as well as multi-node Dask workloads on Jupyter notebooks.
-
 ## Installation
 This package is called `ipcmagic-cscs` in [PyPI](https://pypi.org/project/ipcmagic-cscs). It can be installed with
 ```bash
