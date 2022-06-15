@@ -8,7 +8,10 @@ def activate(ipp_client, args):
     nnodes = int(os.environ.get('SLURM_NNODES', 1))
     cpus_per_engine = os.cpu_count() * nnodes // int(args.num_engines)
     nthreads = int(os.environ.get('OMP_NUM_THREADS', cpus_per_engine))
-    dask_client = ipp_client.become_dask(nthreads=nthreads)
+    dask_client = ipp_client.become_dask(
+        nthreads=nthreads,
+        scheduler_args={'dashboard': True}
+    )
     with tempfile.NamedTemporaryFile(delete=False) as tmp:
         dask_client.write_scheduler_file(tmp.name)
 
@@ -30,6 +33,6 @@ def deactivate(dask_client, ipp_client):
         dask_client.close()
         ipp_client.stop_dask()
 
-    time.sleep(2)
+    time.sleep(5)
 
     print(f'dask cluster {dask_client.status}')
