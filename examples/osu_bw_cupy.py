@@ -1,9 +1,14 @@
+# Adapted from https://github.com/mpi4py/mpi4py/blob/master/demo/osu_bw.py
+# and https://mpi4py.readthedocs.io/en/stable/tutorial.html#cuda-aware-mpi-python-gpu-arrays
 # http://mvapich.cse.ohio-state.edu/benchmarks/
 
 from mpi4py import MPI
+import cupy as cp
+import os
+
 
 def osu_bw(
-    BENCHMARH = "MPI Bandwidth Test",
+    BENCHMARH = "MPI G2G Bandwidth Test",
     skip = 10,
     loop = 100,
     window_size = 64,
@@ -18,6 +23,8 @@ def osu_bw(
     myid = comm.Get_rank()
     numprocs = comm.Get_size()
 
+    cp.cuda.Device(myid).use()
+
     if numprocs != 2:
         if myid == 0:
             errmsg = "This test requires exactly two processes"
@@ -25,8 +32,9 @@ def osu_bw(
             errmsg = None
         raise SystemExit(errmsg)
 
-    s_buf = allocate(MAX_MSG_SIZE)
-    r_buf = allocate(MAX_MSG_SIZE)
+    s_buf = cp.arange(MAX_MSG_SIZE, dtype='i')
+    r_buf = cp.empty_like(s_buf)
+    cp.cuda.get_current_stream().synchronize()
 
     if myid == 0:
         print ('# %s' % (BENCHMARH,))
@@ -57,6 +65,7 @@ def osu_bw(
                     requests[j] = comm.Isend(s_msg, 1, 100)
                 MPI.Request.Waitall(requests)
                 comm.Recv(r_msg, 1, 101)
+
             t_end = MPI.Wtime()
         elif myid == 1:
             s_msg = [s_buf,    4, MPI.BYTE]
@@ -73,17 +82,7 @@ def osu_bw(
             print ('%-10d%20.2f' % (size, MB/s))
 
 
-def allocate(n):
-    try:
-        import mmap
-        return mmap.mmap(-1, n)
-    except (ImportError, EnvironmentError):
-        try:
-            from numpy import zeros
-            return zeros(n, 'B')
-        except ImportError:
-            from array import array
-            return array('B', [0]) * n
+    cp.allclose(s_buf, r_buf)
 
 
 if __name__ == '__main__':
