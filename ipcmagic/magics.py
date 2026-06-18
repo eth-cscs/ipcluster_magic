@@ -23,7 +23,7 @@ class IPClusterMagics(Magics):
       -h --help                  Show this screen.
       -v --version               Show version.
       -n --num_engines <int>     Number of engines
-      -c --cpus_per_engine <int> Number of cpus per engine
+      -c --cpus_per_engine <int> Number of cpus per engine with srun
       --launcher <str>           Job launcher (mpirun | srun | local)
       --dask                     Create a dask.distributed cluster
     """
