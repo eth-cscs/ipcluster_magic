@@ -122,9 +122,12 @@ class IPClusterMagics(Magics):
         }
         np_opt = launcher_np_opts[self.args.launcher]
         try:
-            self.engines = run_command_async(
-                f'{self.args.launcher} {np_opt} {self.args.num_engines} -c {self.args.cpus_per_engine} ipengine '  # noqa: E501
-                f'--location={hostname} --log-to-file')
+            cmd = f'{self.args.launcher} {np_opt} {self.args.num_engines} '
+            if self.args.launcher == 'srun':
+                cmd += f'-c {self.args.cpus_per_engine} '
+
+            cmd += f'ipengine --location={hostname} --log-to-file'
+            self.engines = run_command_async(cmd)
         except FileNotFoundError:
             print(f'Launcher not supported in this system: '
                   f'{self.args.launcher}')
