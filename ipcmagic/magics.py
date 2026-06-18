@@ -20,11 +20,12 @@ class IPClusterMagics(Magics):
       %ipcluster --version
 
     Options:
-      -h --help                Show this screen.
-      -v --version             Show version.
-      -n --num_engines <int>   Number of engines
-      --launcher <str>         Job launcher (mpirun | srun | local)
-      --dask                   Create a dask.distributed cluster
+      -h --help                  Show this screen.
+      -v --version               Show version.
+      -n --num_engines <int>     Number of engines
+      -c --cpus_per_engine <int> Number of cpus per engine with srun
+      --launcher <str>           Job launcher (mpirun | srun | local)
+      --dask                     Create a dask.distributed cluster
     """
 
     def __init__(self, shell):
@@ -51,7 +52,8 @@ class IPClusterMagics(Magics):
             'start': None,
             'stop': None,
             'launcher': 'srun',
-            'dask': False
+            'dask': False,
+            'cpus_per_engine': 1
         }
 
         given_args = {key: val for key, val in args.items() if val}
@@ -120,9 +122,12 @@ class IPClusterMagics(Magics):
         }
         np_opt = launcher_np_opts[self.args.launcher]
         try:
-            self.engines = run_command_async(
-                f'{self.args.launcher} {np_opt} {self.args.num_engines} ipengine '  # noqa: E501
-                f'--location={hostname} --log-to-file')
+            cmd = f'{self.args.launcher} {np_opt} {self.args.num_engines} '
+            if self.args.launcher == 'srun':
+                cmd += f'-c {self.args.cpus_per_engine} '
+
+            cmd += f'ipengine --location={hostname} --log-to-file'
+            self.engines = run_command_async(cmd)
         except FileNotFoundError:
             print(f'Launcher not supported in this system: '
                   f'{self.args.launcher}')
