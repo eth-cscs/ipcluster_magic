@@ -5,15 +5,15 @@ It supports `mpirun` and `srun` (Slurm) launchers, as well as a non-MPI launcher
 
 ## Installation
 
-This package is called `ipcmagic-cscs` in [PyPI](https://pypi.org/project/ipcmagic-cscs). It can be installed with
+This package is called `ipcmagic` in [PyPI](https://pypi.org/project/ipcmagic). It can be installed with
 ```bash
-pip install ipcmagic-cscs[dask]
+pip install ipcmagic[dask]
 ```
-This installs all `ipcmagic-cscs` dependencies including Dask (`dask[complete]`).
+This installs all `ipcmagic` dependencies including Dask (`dask[complete]`).
 
-If the Dask support is not needed, `ipcmagic-cscs` can be installed with
+If the Dask support is not needed, `ipcmagic` can be installed with
 ```bash
-pip install ipcmagic-cscs
+pip install ipcmagic
 ```
 which doesn't include the installation of Dask and it's dependencies.
 
