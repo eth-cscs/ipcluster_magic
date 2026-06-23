@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ipcmagic"
+dynamic = ["version"]
+description = "IPyParallel magics for Jupyter notebooks"
+readme = "README.md"
+license = "BSD-3-Clause"
+
+dependencies = [
+    "ipython>=6.3.0",
+    "docopt>=0.6.2",
+    "ipyparallel>=8.2.1",
+]
+
+[project.optional-dependencies]
+dask = [
+    "dask[complete]>=2022.05.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/eth-cscs/ipcluster_magic"
+
+[tool.setuptools.dynamic]
+version = {attr = "ipcmagic.version.VERSION"}
